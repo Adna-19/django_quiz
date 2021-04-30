@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %} Teacher's Quiz {% endblock %}
+
+{% block content %}
+
+  <h1>{{ quiz.title }}</h1>
+  <hr>
+  <div class="card float-start mx-auto p-4" style="width: 60rem;">
+    <div class="row questions">
+      {% for question in quiz.questions.all %}
+      <div class="row mb-3 border p-2 ms-1" data-id="{{ question.id }}">
+          <div class="col col-md-9">
+            Q<span class="order">{{ question.order|add:1 }}</span>: {{ question.text }}
+            <br><br>
+            <p>
+              <div class="row row-cols-1 row-cols-md-2 g-4">
+              {% for answer in question.answers.all %}
+                <div class="col">
+                  <span class="border border-{% if answer.is_correct %}success{% else %}danger{% endif %} p-1">{{ answer.text }}</span> &emsp14;&emsp14;
+                </div>
+                {% endfor %}
+              </div>
+            </p>
+          </div>
+          <div class="col col-md-2 text-end pt-3" style="width: 20%;">
+            <a href="{% url 'update_question' quiz.id question.id %}" class="btn btn-sm btn-primary">edit</a>
+            {% include "delete_modal.html" with object_id=question.id object='question' pattern_name='delete_question' %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="float-end w-25 p-4" style="width: 25rem;">
+    <h2>Operations</h2>
+    <hr>
+    <a href="{% url 'create_question' quiz.id %}" class="btn btn-success mt-2">Add Question</a><br>
+    {% include "delete_modal.html" with object_id=quiz.id object='' pattern_name='delete_quiz' %}
+    <a href="{% url 'update_quiz' quiz.id %}" class="btn btn-secondary mt-2">Update Quiz</a>
+    <p style="font-size: 20px; margin-top: 10px;">
+      Attempted by
+      <span class="text-danger">5463</span>
+      <br>
+      No of Questions: {{ quiz.questions.count }}
+    </p>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+        <h2>Summary</h2>
+      </div>
+      <div class="card-body">
+        <p>{{ quiz.summary }}</p>
+      </div>
+    </div>
+
+  </div>
+
+{% endblock %}
+
+{% block javascript %}
+  <script type="text/javascript">
+    // executes, when the dom is ready
+    $(document).ready(function() {
+      $('.questions').sortable({
+        stop: function (event, ui) {
+          questions_order = {};
+          $('.questions').children().each(function () {
+            // update the order
+            $(this).find('.order').text($(this).index()+1);
+            // associate the module with its order
+            questions_order[$(this).data('id')] = $(this).index();
+          });
+          $.ajax({
+            type: 'POST',
+            url: '{% url "order_questions" %}',
+            contentType: 'application/json; charset-utf-8',
+            dataType: 'json',
+            data: JSON.stringify(questions_order)
+          });
+        }
+      });
+    });
+  </script>
+{% endblock %}  

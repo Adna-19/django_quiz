@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} 
+  {% if object %}
+    Update Quiz
+  {% else %}
+    Create Quiz
+  {% endif %}
+
+{% endblock %}
+
+{% block content %}
+
+  <link rel="stylesheet" type="text/css" href="{% static 'css/jquery.datetimepicker.css' %}" />
+  <script src="{% static 'js/jquery.js' %}"></script>
+  <script src="{% static 'js/jquery.datetimepicker.full.min.js' %}"></script>
+
+  <h1>
+    {% if object %}
+      Update Quiz
+    {% else %}
+      Create Quiz
+    {% endif %}
+  </h1>
+
+  <form action="" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <p><input type="submit" value="{% if object %}
+      Update
+    {% else %}
+      Create
+    {% endif %}"></p>
+  </form>
+
+  <script>
+    jQuery('.datetimepicker').datetimepicker({format:'Y-m-d H:i'});
+  </script>
+{% endblock %}

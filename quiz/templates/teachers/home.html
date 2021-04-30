@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %} Teacher Home {% endblock %}
+
+{% block content %}
+  <h1>Welcome to Teachers HOME page</h1>
+  <br>
+  <div class="float-start w-75">
+    <div class="row">
+      {% for quiz in quizzes %}
+      <div class="col-sm-6">
+        <div class="card mb-4 border border-{{ quiz.subject.badge_color }}">
+          <div class="card-body">
+            <h5 class="card-title">{{ quiz.title }}</h5>
+            <small>at {{ quiz.date_created }}</small>
+            <hr>
+            <p class="card-text">{{ quiz.summary|truncatewords:20 }}</p>
+            <a href="{% url 'quiz_cms_details' quiz.id %}" class="btn btn-{{ quiz.subject.badge_color }}">Open Quiz</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+
+  <div class="float-end w-25 p-5">
+    <h2>Operations</h2>
+    <hr>
+    <a href="{% url 'create_quiz' %}" class="btn btn-primary">Create new Quiz</a>
+  </div>
+{% endblock %}

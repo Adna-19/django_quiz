@@ -7,8 +7,7 @@ from .models import User, StudentProfile, TeacherProfile
 from django.contrib.auth import authenticate, login, logout
 from django.views.generic.base import TemplateView
 from .forms import (
-	StudentSignUpForm, 
-	TeacherSignUpForm,
+	SignUpForm,
 	StudentProfileSettingForm,
 	TeacherProfileSettingForm
 )
@@ -54,79 +53,51 @@ class PasswordChangeView(TemplateResponseMixin, View):
       form.save()
       return redirect('login')
 
-class SignUpView(TemplateView):
-  template_name = 'accounts/authentications/signup.html'
+class SignUpSelectionView(TemplateView):
+  template_name = 'accounts/authentications/signup_selection.html'
 
-class StudentSignUpView(TemplateResponseMixin, View):
-	template_name = 'accounts/authentications/student_signup.html'
+class SignUpView(TemplateResponseMixin, View):
+	template_name = 'accounts/authentications/signup_modal_form.html'
+	model = None
 
-	def get(self, request, *args, **kwargs):
-		form = StudentSignUpForm()
-		return self.render_to_response({'form':form })
+	def dispatch(self, request, user_role, *args, **kwargs):
+		if user_role == 'S':
+			self.model = StudentProfile
+		elif user_role == 'T':
+			self.model = TeacherProfile
+		return super(SignUpView, self).dispatch(request, user_role, *args, **kwargs)
 
-	def post(self, request, *args, **kwargs):
-		form = StudentSignUpForm(request.POST, request.FILES)
-		
-		if form.is_valid():
+	def get(self, request, user_role, *args, **kwargs):
+		form = SignUpForm()
+		return self.render_to_response({'form':form, 'user_role': user_role})
+
+	def post(self, request, user_role, *args, **kwargs):
+		form = SignUpForm(request.POST)
+
+		if form.is_valid() and not request.is_ajax():
 			cd = form.cleaned_data
 			user = User(
 				username=cd['username'],
-				first_name=cd['first_name'],
-				last_name=cd['last_name'],
-				email=cd['email']
-			)
-			user.set_password(cd['confirm_password'])
-			user.user_role = 'S'
-			user.save()
-
-			# create associated profile with user
-			StudentProfile.objects.create(
-				user=user, 
-				profile_image=cd['image'], 
-				bio=cd['bio'],
+				email=cd['email'],
 				gender=cd['gender']
 			)
-			return redirect('login')
-		return self.render_to_response({'form': form})
-
-class TeacherSignUpView(TemplateResponseMixin, View):
-	template_name = 'accounts/authentications/teacher_signup.html'
-
-	def get(self, request, *args, **kwargs):
-		form = TeacherSignUpForm()
-		return self.render_to_response({'form':form})
-
-	def post(self, request, *args, **kwargs):
-		form = TeacherSignUpForm(request.POST, request.FILES)
-		if form.is_valid():
-			cd = form.cleaned_data
-			user = User(
-				username=cd['username'],
-				first_name=cd['first_name'],
-				last_name=cd['last_name'],
-				email=cd['email'],
-				)
 			user.set_password(cd['confirm_password'])
-			user.user_role = 'T'
+			user.user_role = user_role
 			user.save()
 
-			TeacherProfile.objects.create(
-				user=user,
-				about=cd['about'],
-				profile_image=cd['image'],
-				)
+			self.model.objects.create(user=user)
 			return redirect('login')
-		return self.render_to_response({'form':form})
+		return self.render_to_response({'form': form})
 
 class ProfileUpdateView(TemplateResponseMixin, View):
 	template_name = 'accounts/authentications/profile_form.html'
 
 	def get_form(self, request):
 		if request.user.user_role == 'S':
-			form = StudentProfileSettingForm(request.user ,request.POST or None, request.FILES or None, instance=request.user.student_profile)
+			form = StudentProfileSettingForm(request.user, request.POST or None, request.FILES or None, instance=request.user.student_profile)
 
 		elif request.user.user_role == 'T':
-			form = TeacherProfileSettingForm(request.user ,request.POST or None, request.FILES or None, instance=request.user.teacher_profile)
+			form = TeacherProfileSettingForm(request.user, request.POST or None, request.FILES or None, instance=request.user.teacher_profile)
 
 		return form
 
@@ -144,11 +115,13 @@ class ProfileUpdateView(TemplateResponseMixin, View):
 			request.user.email = cd['email']
 			request.user.first_name = cd['first_name']
 			request.user.last_name = cd['last_name']
+			request.user.gender = cd['gender']
+			request.user.profile_image = cd['profile_image']
 			request.user.save()
 
 			if request.user.user_role =='S':
 				return redirect('students_dashboard')
 			elif request.user.user_role == 'T':
 				return redirect('teachers_dashboard')
-
+				
 		return self.render_to_response({'form': form})

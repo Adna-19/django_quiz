@@ -1,14 +1,18 @@
-from django import forms
 from .models import StudentProfile, TeacherProfile, User
+from django import forms
+from bootstrap_modal_forms.forms import BSModalForm
 
-class BaseForm(forms.Form):
-	""" ALL THE COMMON FIELDS FOR BOTH TYPE OF USERS ARE DEFINED HERE.."""
+class SignUpForm(BSModalForm):
 	username = forms.CharField(max_length=20)
-	first_name = forms.CharField(max_length=20)
-	last_name = forms.CharField(max_length=20)
-	image = forms.ImageField()
 	gender = forms.ChoiceField(choices=(('M','Male'),('F', 'Female')))
 	email = forms.EmailField()
+	password = forms.CharField(widget=forms.PasswordInput)
+	confirm_password = forms.CharField(widget=forms.PasswordInput)
+
+	def __init__(self, *args, **kwargs):
+		super(SignUpForm, self).__init__(*args, **kwargs)
+		for field_name in self.fields.keys():
+			self.fields[field_name].widget.attrs.update({'class': 'form-control'})
 
 	def clean_username(self):
 		username = self.cleaned_data.get('username')
@@ -26,32 +30,6 @@ class BaseForm(forms.Form):
 			raise forms.ValidationError('Mismatched Password')
 		return password2
 
-
-# ACTUAL PROFILE FORMS
-
-class StudentSignUpForm(BaseForm):
-  bio = forms.CharField(widget=forms.Textarea)
-  password = forms.CharField(widget=forms.PasswordInput)
-  confirm_password = forms.CharField(widget=forms.PasswordInput)
-
-  def clean_username(self):
-    return super(StudentSignUpForm, self).clean_username()
-  
-  def clean_confirm_password(self):
-    return super(StudentSignUpForm, self).clean_confirm_password()
-
-class TeacherSignUpForm(BaseForm):
-	about = forms.CharField(widget=forms.Textarea)
-	password = forms.CharField(widget=forms.PasswordInput)
-	confirm_password = forms.CharField(widget=forms.PasswordInput)
-
-	def clean_username(self):
-		return super(TeacherSignUpForm, self).clean_username()
-
-	def clean_confirm_password(self):
-		return super(TeacherSignUpForm, self).clean_confirm_password()
-
-
 # REDUNDANT CODE DOWN HERE, NEEDS TO BE OPTIMIZED
 
 class StudentProfileSettingForm(forms.ModelForm):
@@ -59,31 +37,39 @@ class StudentProfileSettingForm(forms.ModelForm):
 	first_name = forms.CharField(max_length=20)
 	last_name  = forms.CharField(max_length=20)
 	email      = forms.EmailField()
+	profile_image = forms.ImageField()
+	gender 				= forms.ChoiceField(widget=forms.Select(), choices=([('M', 'Male'), ('F', 'Female'),]), required=True) 
 
 	def __init__(self, user, *args, **kwargs):
 		super(StudentProfileSettingForm, self).__init__(*args, **kwargs)
-		self.fields['username'].initial = user.username
-		self.fields['first_name'].initial = user.first_name
-		self.fields['last_name'].initial = user.last_name
-		self.fields['email'].initial = user.email
+		self.initial['username'] = user.username
+		self.initial['first_name'] = user.first_name
+		self.initial['last_name'] = user.last_name
+		self.initial['email'] = user.email
+		self.initial['profile_image'] = user.profile_image
+		self.initial['gender'] = user.gender
 
 	class Meta:
 		model = StudentProfile
-		fields = ('username', 'first_name', 'last_name', 'email', 'profile_image', 'gender', 'bio')
+		fields = ('username', 'first_name', 'last_name', 'email', 'bio')
 
 class TeacherProfileSettingForm(forms.ModelForm):
 	username   = forms.CharField(max_length=50)
 	first_name = forms.CharField(max_length=20)
 	last_name  = forms.CharField(max_length=20)
 	email      = forms.EmailField()
+	profile_image = forms.ImageField()
+	gender 				= forms.ChoiceField() 
 
 	def __init__(self, user, *args, **kwargs):
 		super(TeacherProfileSettingForm, self).__init__(*args, **kwargs)
-		self.fields['username'].initial = user.username
-		self.fields['first_name'].initial = user.first_name
-		self.fields['last_name'].initial = user.last_name
-		self.fields['email'].initial = user.email
+		self.initial['username'] = user.username
+		self.initial['first_name'] = user.first_name
+		self.initial['last_name'] = user.last_name
+		self.initial['email'] = user.email
+		self.initial['profile_image'] = user.profile_image
+		self.initial['gender'] = user.gender
 
 	class Meta:
 		model  = TeacherProfile
-		fields = ('username', 'first_name', 'last_name', 'email', 'profile_image', 'gender', 'about')
+		fields = ('username', 'first_name', 'last_name', 'email', 'about')

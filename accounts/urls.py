@@ -6,9 +6,10 @@ urlpatterns = [
   path('login/', views.LoginView.as_view(), name='login'),
   path('logout/', views.LogoutView.as_view(), name='logout'),
   path('password/change/', views.PasswordChangeView.as_view(), name='change_password'),
-  path('signup/', views.SignUpView.as_view(), name='signup'),
-  path('student/signup/', views.StudentSignUpView.as_view(), name='student_signup'),
-  path('teacher/signup/', views.TeacherSignUpView.as_view(), name='teacher_signup'),
+  path('signup/', views.SignUpSelectionView.as_view(), name='signup'),
+
+  path('student/signup/<str:user_role>/', views.SignUpView.as_view(), name='student_signup'),
+  path('teacher/signup/<str:user_role>/', views.SignUpView.as_view(), name='teacher_signup'),
   path('update/', views.ProfileUpdateView.as_view(), name='update_profile'),
 ]
 

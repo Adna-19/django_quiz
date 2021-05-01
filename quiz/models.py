@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from .fields import OrderField
 
@@ -26,13 +27,19 @@ class Quiz(models.Model):
   score          = models.PositiveIntegerField(null=True, blank=True)
   date_created   = models.DateTimeField(auto_now_add=True)
   date_updated   = models.DateTimeField(auto_now=True)
-  # date_published = models.DateTimeField()
 
   starts_at = models.DateTimeField()
   ends_at   = models.DateTimeField()
 
+  def clean(self):
+    if not len(self.title) > 20:
+      raise ValidatioError({
+        'title': 'Title should have at least 20 letters'
+      })
+
   def save(self, *args, **kwargs):
     self.slug = f"{slugify(self.title)}-{slugify(timezone.now())}"
+    self.full_clean()
     super(Quiz, self).save(*args, **kwargs)
 
   def get_absolute_url(self):

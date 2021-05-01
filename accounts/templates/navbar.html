@@ -37,6 +37,10 @@
       <span class="p-3">
         <a href="{% url 'logout' %}" class="btn btn-sm btn-danger">logout</a>
       </span>
+      <span style="margin-bottom: -25px;">
+        <img src="{{ request.user.profile_image.url }}" style="width: 30px; border-radius: 50%;" alt="">
+        <p style="font-size: 12px;" class="text-white">{{ request.user.username }}</p>
+      </span>
       {% endif %}
     </div>
   </div>

@@ -28,6 +28,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'quiz.apps.QuizConfig',
+    'bootstrap_modal_forms',
+    'widget_tweaks'
 ]
 
 MIDDLEWARE = [

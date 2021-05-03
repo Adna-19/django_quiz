@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% load custom_filters %}
+
+{% block title %} Student's Quiz {% endblock %}
+
+{% block content %}
+
+  {% block quiz_form %}
+
+    {% if messages %}
+    <ul class="message list-group w-75">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="card float-start mx-auto p-4 border border-{{quiz.subject.badge_color}}" style="width: 60rem;">
+      <div class="row">
+        <div class="col col-md-8">
+          <h2>{{ quiz.title }}</h2>
+          <hr class="text-{{quiz.subject.badge_color}}">
+          {{ quiz.summary }}
+          <br><br><hr class="text-{{quiz.subject.badge_color}}">
+          <span class="pt-3">
+            By <span class="text-success">{{ quiz.teacher.user.full_name }}</span>
+            On <span class="text-danger">{{ quiz.date_created }}</span><br>
+            No of Questions: <span class="text-primary">{{ quiz.questions.count }}</span><br>
+            Attempted By: <span class="text-primary">312 Students</span><br>
+            Subject: <span class="text-{{quiz.subject.badge_color}}">{{ quiz.subject }}</span>
+          </span>
+        </div>
+    
+        <div class="col col-md-4">
+          <div class="card text-center text-white" style="background-color: rgb(69, 69, 69);">
+            <div class="card-body">
+              <img src="{{ quiz.teacher.user.profile_image.url }}" style="width: 62px; height: 60px; border-radius: 50%;" alt=""><br>
+              <span>{{ quiz.teacher.user.full_name }}</span><br>
+              Created Quizzes: <span style="color: rgb(152, 152, 255);">{{quiz.teacher.created_quizzes.count}}</span>
+              <hr>
+              <a href="" class="btn btn-sm btn-success">visit profile</a><br><br>
+              <div class="row justify-content-center">
+                <div class="col col-md-1">
+                  <a href=""><i class="text-danger fab fa-instagram"></i></a>
+                </div>
+                <div class="col col-md-1">
+                  <a href=""><i class="text-primary fab fa-facebook-square"></i></a>
+                </div>
+                <div class="col col-md-1">
+                  <a href=""><i class="text-white fab fa-github"></i></a>
+                </div>
+                <div class="col col-md-1">
+                  <a href=""><i class="text-info fab fa-twitter-square"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+          {% if quiz|already_attempted_quiz_by:request.user.student_profile %}
+            <div class="card border border-success">
+              <div class="card-body text-center">
+                <div class="circle" style="width:120px; height: 120px; border: 7px solid #1c8755; border-radius: 50%; position: relative;">
+                  <div style="position: absolute; top: 32px; left: 11px; font-size: 25px; color: #1c8755; font-weight: bold;">{{ obtained_marks }} / {{ total_marks }}</div>
+                  <h3 class="text-success" style="position: absolute; top: 35px; left: 140px;">Scores</h3>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card-body">
+        {% if quiz|already_attempted_quiz_by:request.user.student_profile %}
+          <a href="{% url 're_attempt_quiz' quiz.id %}" class="btn btn-danger">Re-attempt Quiz</a>
+        {% else %}
+          <a href="{% url 'attempt_quiz' quiz.id %}" class="btn btn-{{ quiz.subject.badge_color }}">Attempt Quiz</a>
+        {% endif %}
+      </div>
+      
+    </div>
+  {% endblock %}
+
+  <div class="w-25 p-4" style="width: 25rem; position: fixed; right: 40px; top: 80px;">
+    <div class="card">
+      <div class="card-header bg-dark text-warning text-center">
+        <h2>Related Quizzes</h2>
+      </div>
+      <div class="card-body">
+        <ul class="list-group">
+          {% for quiz in related_quizzes %}
+            <li class="list-group-item">
+              <a style="text-decoration: none;" href="{% url 'quiz_details' quiz.id %}">
+                {{ quiz.title }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <br>
+  </div>
+
+{% endblock %}
+
+{% block javascript %}
+  <script>
+    setTimeout(function() {
+      document.querySelector('.message').remove();
+    }, 4000);
+  </script>
+{% endblock %}

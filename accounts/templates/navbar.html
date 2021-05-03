@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
   <div class="container-fluid">
     <a class="navbar-brand text-warning ms-2" href="#" style="font-size: 30px; padding-right: 20px;">
       <i class="fab fa-medapps"></i> Quizo
@@ -30,18 +30,39 @@
           <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
         </li>
       </ul>
-      <form class="d-flex">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
+      <span>
+        <form class="d-flex" action="" method="GET">
+          <div class="input-group" id="search-component">
+            <input type="text" name="query" id="search-input" class="form-control" placeholder="Search">
+            <button type="submit" id="search-button" class="input-group-text"><i class="fas fa-search"></i></button>
+          </div>
+        </form>
+      </span>
       <span class="p-3">
         <a href="{% url 'logout' %}" class="btn btn-sm btn-danger">logout</a>
       </span>
       <span style="margin-bottom: -25px;">
-        <img src="{{ request.user.profile_image.url }}" style="width: 30px; border-radius: 50%;" alt="">
+        <img src="{{ request.user.profile_image.url }}" style="width: 30px; height: 30px; border-radius: 50%;" alt="">
         <p style="font-size: 12px;" class="text-white">{{ request.user.username }}</p>
       </span>
       {% endif %}
     </div>
   </div>
 </nav>
+
+<script>
+  document.getElementById('search-component').addEventListener('mouseover', hoverOverForm);
+  document.getElementById('search-component').addEventListener('mouseout', hoverOutForm);
+
+  function hoverOverForm(event) {
+    document.querySelector('#search-input').style.border = "2px solid #FFC107";
+    document.querySelector('#search-button').style.backgroundColor = "#FFC107";
+    document.querySelector('#search-button').style.color = "black";
+  }
+
+  function hoverOutForm(event) {
+    document.querySelector('#search-input').style.border = "none";
+    document.querySelector('#search-button').style.backgroundColor = "#424141";
+    document.querySelector('#search-button').style.color = "rgb(142, 142, 142)";
+  }
+</script>

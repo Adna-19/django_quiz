@@ -23,4 +23,7 @@ urlpatterns += [
 
 urlpatterns += [
   path('students/home/', student_views.StudentHomeView.as_view(), name='students_dashboard'),
+  path('students/quiz/<int:pk>/details/', student_views.StudentQuizDetailView.as_view(), name='quiz_details'),
+  path('students/quiz/<int:quiz_id>/re-attempt/', student_views.StudentReAttemptView.as_view(), name='re_attempt_quiz'),
+  path('students/quiz/<int:quiz_id>/question/attempt/', student_views.StudentQuizAttemptView.as_view(), name='attempt_quiz'),
 ]

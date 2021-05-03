@@ -81,15 +81,15 @@ class TakenQuiz(models.Model):
   student = models.ForeignKey('accounts.StudentProfile', 
                               related_name='taken_quizzes', 
                               on_delete=models.CASCADE)
-  quiz    = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+  quiz           = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+  obtained_marks = models.PositiveIntegerField(null=True, blank=True)
 
   def __str__(self):
     return f"Quiz: {self.quiz.title} taken by {self.student.user.full_name}"
 
 class StudentAnswer(models.Model):
-  taken_quiz = models.ForeignKey(TakenQuiz, related_name='answers', on_delete=models.CASCADE)
-  question   = models.ForeignKey(Question, on_delete=models.CASCADE)
+  student    = models.ForeignKey('accounts.StudentProfile', related_name='quiz_answers', on_delete=models.CASCADE, null=True, blank=True)
   answer     = models.ForeignKey(Answer, on_delete=models.CASCADE)
 
   def __str__(self):
-    return f"Answer: {self.answer.text} for Q:{self.question.text} in Quiz: {self.taken_quiz.quiz.title}"
+    return f"Answer: {self.answer.text} by {self.student.user.full_name} {self.answer.is_correct}"

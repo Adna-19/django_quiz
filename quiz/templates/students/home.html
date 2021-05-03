@@ -4,4 +4,56 @@
 
 {% block content %}
   <h1>Welcome to Students HOME page</h1>
+
+  {% if message %}
+    <p class="text-success">{{ message }}</p>
+  {% elif not subjects %}
+    
+    <div class="float-start w-75 mt-4">
+      <div class="row">
+        {% for quiz in quizzes %}
+        <div class="col-sm-6">
+          <div class="card mb-4 border border-{{ quiz.subject.badge_color }}">
+            <div class="card-body">
+              <h5 class="card-title">{{ quiz.title }}</h5>
+              <small>at {{ quiz.date_created }}</small>
+              <hr>
+              <p class="card-text">{{ quiz.summary|truncatewords:20 }}</p>
+              <a href="{% url 'quiz_details' quiz.id %}" class="btn btn-{{ quiz.subject.badge_color }}">Open Quiz</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+
+    <div class="float-end w-25 p-5">
+      <h2>Progress</h2>
+      <hr>
+      <div class="card text-center text-white" style="background-color: rgb(69, 69, 69);">
+        <div class="card-body">
+          <img src="{{ request.user.profile_image.url }}" style="width: 65px; height: 60px; border-radius: 50%;" alt="">
+          <p>{{ request.user.full_name }}</p>
+          <hr>
+          <p>Take Quizzes: <span style="color: rgb(152, 152, 255);">3421</span></p>
+          <p>Completed Quizzes: <span style="color: rgb(45, 247, 69);">921</span></p>
+          <p>Interested In:
+            <div class="card bg-dark">
+              <div class="card-body">
+                {% for subject in request.user.student_profile.interests.all %}
+                  <span class="badge bg-success">{{ subject.name }}</span>
+                {% empty%}
+                  No Interests yet.
+                {% endfor %}
+              </div>
+            </div>
+          </p>
+        </div>
+      </div>
+    </div>
+
+  {% else %}
+    {% include "students/interests_selection_form.html" with subjects=subjects user=request.user.student_profile %}
+  {% endif %}
 {% endblock %}

@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group
-from quiz.models import Subject
+from quiz.models import Subject, Quiz
 
 class User(AbstractUser):
   USER_CHOICES = (
@@ -45,6 +45,11 @@ class StudentProfile(models.Model):
   user          = models.OneToOneField(User, related_name='student_profile', on_delete=models.CASCADE)
   interests     = models.ManyToManyField(Subject, blank=True)
   bio           = models.TextField(null=True, blank=True)
+
+  def get_unanswered_questions(self, quiz):
+    answered_question = self.quiz_answers.filter(answer__question__quiz=quiz).values_list('answer__question__pk', flat=True)
+    questions = quiz.questions.exclude(pk__in=answered_question)
+    return questions
 
   def __str__(self):
     return f"{self.user.full_name}"
